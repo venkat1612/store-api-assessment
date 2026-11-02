@@ -21,13 +21,11 @@ public class CustomerController {
     private final CustomerMapper customerMapper;
 
     @GetMapping
-    public List<CustomerDTO> getAllCustomers() {
+    public List<CustomerDTO> getAllCustomers(@RequestParam(value = "name", required = false) String searchText) {
+        if (searchText != null && !searchText.isEmpty()) {
+            return customerMapper.customersToCustomerDTOs(customerRepository.findByNameContainingIgnoreCase(searchText));
+        }
         return customerMapper.customersToCustomerDTOs(customerRepository.findAll());
-    }
-
-    @GetMapping("/search")
-    public List<CustomerDTO> searchCustomers(@RequestParam(value = "name") String searchText) {
-        return customerMapper.customersToCustomerDTOs(customerRepository.findByNameContainingIgnoreCase(searchText));
     }
 
     @PostMapping
