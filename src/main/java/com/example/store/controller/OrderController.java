@@ -7,6 +7,7 @@ import com.example.store.repository.OrderRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.Positive;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -31,12 +32,9 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public OrderDTO getOrderByID(@PathVariable @Positive(message = "Order ID must be a positive number") Long id) {
-        return orderMapper.orderToOrderDTO(
-                orderRepository.findById(id)
-                        .orElseThrow(() -> new EntityNotFoundException(
-                                "Order not found with ID: " + id
-                        ))
-        );
+        return orderMapper.orderToOrderDTO(orderRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + id)));
     }
 
     @PostMapping
