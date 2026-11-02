@@ -5,6 +5,7 @@ import com.example.store.entity.Order;
 import com.example.store.mapper.OrderMapper;
 import com.example.store.repository.OrderRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,11 @@ public class OrderController {
     @GetMapping
     public List<OrderDTO> getAllOrders() {
         return orderMapper.ordersToOrderDTOs(orderRepository.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public OrderDTO getOrderByID(@PathVariable Long id) {
+        return orderMapper.orderToOrderDTO(orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + id)));
     }
 
     @PostMapping
