@@ -28,7 +28,12 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public OrderDTO getOrderByID(@PathVariable Long id) {
-        return orderMapper.orderToOrderDTO(orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + id)));
+        return orderMapper.orderToOrderDTO(
+                orderRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                "Order not found with ID: " + id
+                        ))
+        );
     }
 
     @PostMapping
