@@ -5,6 +5,7 @@ import com.example.store.entity.Customer;
 import com.example.store.mapper.CustomerMapper;
 import com.example.store.repository.CustomerRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -22,8 +23,15 @@ public class CustomerController {
 
     @GetMapping
     public List<CustomerDTO> getAllCustomers(@RequestParam(value = "name", required = false) String searchText) {
+        List<Customer> customers;
         if (searchText != null && !searchText.isEmpty()) {
-            return customerMapper.customersToCustomerDTOs(customerRepository.findByNameContainingIgnoreCase(searchText));
+            customers = customerRepository.findByNameContainingIgnoreCase(searchText);
+
+            if (customers.isEmpty()) {
+                throw new EntityNotFoundException(
+                        "No customers found matching name: " + searchText
+                );
+            }
         }
         return customerMapper.customersToCustomerDTOs(customerRepository.findAll());
     }
