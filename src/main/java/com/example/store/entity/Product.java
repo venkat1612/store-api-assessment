@@ -1,19 +1,24 @@
 package com.example.store.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
+@Table(name = "product")
 public class Product {
-
     @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "description", nullable = false)
+    @Column(nullable = false)
     private String description;
+
+    @ManyToMany(mappedBy = "products", fetch = FetchType.LAZY)
+    private Set<Order> orders = new LinkedHashSet<>();
 }

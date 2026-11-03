@@ -1,6 +1,8 @@
 package com.example.store.controller;
 
+import com.example.store.dto.ProductCreateRequestDTO;
 import com.example.store.dto.ProductDTO;
+import com.example.store.entity.Product;
 import com.example.store.mapper.ProductMapper;
 import com.example.store.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,9 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
-        return productMapper.productToProductDTO(productRepository.save(productMapper.productDTOToProduct(productDTO)));
+    public ProductDTO createProduct(@RequestBody ProductCreateRequestDTO productCreateRequestDTO) {
+        Product product = new Product();
+        product.setDescription(productCreateRequestDTO.getDescription().strip());
+        return productMapper.productToProductDTO(productRepository.save(product));
     }
 }
