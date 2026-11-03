@@ -31,6 +31,7 @@ public class CustomerController {
             if (customers.isEmpty()) {
                 throw new EntityNotFoundException("No customers found matching name: " + searchText);
             }
+            return customerMapper.customersToCustomerDTOs(customers);
         }
         return customerMapper.customersToCustomerDTOs(customerRepository.findAll());
     }
