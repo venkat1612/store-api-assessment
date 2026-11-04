@@ -29,7 +29,7 @@ docker run -d \
 # Running the application
 You should be able to run the service using
 ```shell
-./gradlew bootRun
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5433/store SPRING_DATASOURCE_USERNAME=admin SPRING_DATASOURCE_PASSWORD=admin ./gradlew bootRun
 ```
 
 The application uses Liquibase to migrate the schema. Some sample data is provided. You can create more data by reading the documentation in utils/README.md
@@ -82,3 +82,78 @@ docker build -t store-api:local .
 The GitHub Actions workflow runs `./gradlew check` for pushes and pull requests. It then builds the Docker image. Pull requests and non-default branches do not publish an image. Successful pushes to the default branch and version tags publish the image to GitHub Container Registry as `ghcr.io/<owner>/<repository>`.
 
 The published image expects a PostgreSQL database. Supply `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` when running it. GitHub Actions uses the repository-provided `GITHUB_TOKEN` to publish; no personal registry token is stored in the repository.
+
+## Run the published Docker image
+
+You need Docker installed. The application also needs PostgreSQL; the API container does not include a database. The commands below start both containers on a private Docker network. The database data is kept in a named Docker volume.
+
+If the GitHub Container Registry package is private, sign in first. `docker login` will prompt for your GitHub username and a personal access token with the `read:packages` permission. If the package is public, skip this step.
+
+```shell
+docker login ghcr.io
+```
+
+Pull the image published from the default branch:
+
+```shell
+docker pull ghcr.io/venkat1612/store-api-assessment:latest
+```
+
+Create a network and a persistent database volume:
+
+```shell
+docker network create store-net
+docker volume create store-postgres-data
+```
+
+Start PostgreSQL. The port mapping makes the database available at `localhost:5433` from your computer; the API container will connect to it using the Docker network name `store-db` and port `5432`.
+
+```shell
+docker run -d \
+  --name store-db \
+  --network store-net \
+  -p 5433:5432 \
+  -e POSTGRES_USER=admin \
+  -e POSTGRES_PASSWORD=admin \
+  -e POSTGRES_DB=store \
+  -v store-postgres-data:/var/lib/postgresql/data \
+  postgres:16.2 \
+  postgres -c wal_level=logical
+```
+
+Wait until PostgreSQL reports that it is accepting connections:
+
+```shell
+docker exec store-db pg_isready -U admin -d store
+```
+
+Then start the API. Liquibase applies the database migrations during application startup.
+
+```shell
+docker run -d \
+  --name store-api \
+  --network store-net \
+  -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://store-db:5432/store \
+  -e SPRING_DATASOURCE_USERNAME=admin \
+  -e SPRING_DATASOURCE_PASSWORD=admin \
+  ghcr.io/venkat1612/store-api-assessment:latest
+```
+
+Check that the APIs respond:
+
+```shell
+curl -i http://localhost:8080/customer
+curl -i http://localhost:8080/order
+curl -i http://localhost:8080/products
+```
+
+The `admin` credentials are for local assessment use only. Configure secure credentials for any deployed environment.
+
+## GET performance choices
+
+The GET repository methods declare entity graphs for the relationships needed by their response DTOs. This loads customer orders, order customers and products, and product order references as part of the repository read, avoiding the repeated lazy-load queries that can make high-latency database calls slow. Open Session in View is disabled so response mapping cannot silently issue additional database queries.
+
+Customer substring search uses a PostgreSQL trigram GIN index on the uppercase customer name. It improves case-insensitive contains searches, at the cost of extra index storage and write work. Very short search terms may not provide enough trigrams for the index to help.
+
+The assessment endpoints still return complete lists to preserve their specified response shape. If production data grows beyond a reasonable response size, add pagination with page metadata as a separate API contract change.
