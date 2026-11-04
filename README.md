@@ -70,3 +70,15 @@ Think carefully about the impact on performance when implementing your changes
 The specifications of the tasks have been left deliberately vague. You will be required to exercise judgement about what to deliver - in a real world environment, you would clarify these points in refinement, but since this is a project to be completed without interaction, feel free to make assumptions - but be prepared to defend them when asked.
 There's no CI pipeline associated with this project, but in reality there would be. Consider the things that you would expect that pipeline to verify before allowing your code to be promoted
 Feel free to refactor the codebase if necessary. Bad choices were deliberately made when creating this project.
+
+# Docker image and CI
+
+Build the application image locally with:
+
+```shell
+docker build -t store-api:local .
+```
+
+The GitHub Actions workflow runs `./gradlew check` for pushes and pull requests. It then builds the Docker image. Pull requests and non-default branches do not publish an image. Successful pushes to the default branch and version tags publish the image to GitHub Container Registry as `ghcr.io/<owner>/<repository>`.
+
+The published image expects a PostgreSQL database. Supply `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` when running it. GitHub Actions uses the repository-provided `GITHUB_TOKEN` to publish; no personal registry token is stored in the repository.
