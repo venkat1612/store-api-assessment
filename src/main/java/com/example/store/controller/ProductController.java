@@ -6,6 +6,8 @@ import com.example.store.entity.Product;
 import com.example.store.mapper.ProductMapper;
 import com.example.store.repository.ProductRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -30,7 +32,7 @@ public class ProductController {
     public ProductDTO getProductById(@PathVariable Long id) {
         return productMapper.productToProductDTO(productRepository
                 .findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id)));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id)));
     }
 
     @PostMapping
