@@ -1,10 +1,12 @@
 package com.example.store.controller;
 
+import com.example.store.dto.OrderCreateRequestDTO;
 import com.example.store.entity.Customer;
 import com.example.store.entity.Order;
 import com.example.store.mapper.CustomerMapper;
 import com.example.store.repository.CustomerRepository;
 import com.example.store.repository.OrderRepository;
+import com.example.store.service.OrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -19,8 +21,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
-import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -42,6 +44,9 @@ class OrderControllerTests {
     @MockitoBean
     private CustomerRepository customerRepository;
 
+    @MockitoBean
+    private OrderService orderService;
+
     private Order order;
     private Customer customer;
 
@@ -59,12 +64,19 @@ class OrderControllerTests {
 
     @Test
     void testCreateOrder() throws Exception {
-        when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(orderRepository.save(order)).thenReturn(order);
+        when(orderService.createOrder(any(OrderCreateRequestDTO.class))).thenReturn(order);
 
-        mockMvc.perform(post("/order")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(order)))
+        mockMvc.perform(
+                        post("/order")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                            {
+                              "description": "Test Order",
+                              "customer": { "id": 1 },
+                              "productIds": [10]
+                            }
+                            """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.description").value("Test Order"))
                 .andExpect(jsonPath("$.customer.name").value("John Doe"));

@@ -5,7 +5,9 @@ import com.example.store.dto.ProductDTO;
 import com.example.store.entity.Product;
 import com.example.store.mapper.ProductMapper;
 import com.example.store.repository.ProductRepository;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +28,9 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ProductDTO getProductById(@PathVariable Long id) {
-        return productMapper.productToProductDTO(productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found with id: " + id)));
+        return productMapper.productToProductDTO(productRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id)));
     }
 
     @PostMapping
