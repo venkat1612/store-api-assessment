@@ -1,0 +1,161 @@
+opencollection: 1.0.0
+info:
+  name: SecuritEase Assignment
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ''
+      port: ''
+      auth:
+        username: ''
+        password: ''
+      bypassProxy: ''
+items:
+  - info:
+      name: GET customers
+      type: http
+      seq: 1
+    http:
+      method: GET
+      url: http://localhost:8080/customer?name=venkat
+      params:
+        - name: name
+          value: venkat
+          type: query
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: true
+  - info:
+      name: GET orderByID
+      type: http
+      seq: 4
+    http:
+      method: GET
+      url: http://localhost:8080/order/1005
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: true
+  - info:
+      name: GET orders
+      type: http
+      seq: 3
+    http:
+      method: GET
+      url: http://localhost:8080/order
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: true
+  - info:
+      name: GET products
+      type: http
+      seq: 6
+    http:
+      method: GET
+      url: http://localhost:8080/products
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: true
+  - info:
+      name: POST customer
+      type: http
+      seq: 2
+    http:
+      method: POST
+      url: http://localhost:8080/customer
+      body:
+        type: json
+        data: |-
+          {
+              "name": "Venkata Sai"
+          }
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: true
+  - info:
+      name: POST order
+      type: http
+      seq: 5
+    http:
+      method: POST
+      url: http://localhost:8080/order
+      body:
+        type: json
+        data: |-
+          {
+            "description": "Weekend grocery order",
+            "customer": {
+              "id": 101
+            },
+            "productIds": [5317, 1]
+          }
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: true
+  - info:
+      name: POST products
+      type: http
+      seq: 8
+    http:
+      method: POST
+      url: http://localhost:8080/products
+      body:
+        type: json
+        data: |-
+          {
+            "description": "Beats Wireless headphones"
+          }
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: true
+  - info:
+      name: GET productByID
+      type: http
+      seq: 7
+    http:
+      method: GET
+      url: http://localhost:8080/products/5319
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: true
+bundled: true
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
+    exportedAt: '2026-11-04T19:40:37.657Z'
+    exportedUsing: Bruno
