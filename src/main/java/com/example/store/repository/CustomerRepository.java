@@ -10,12 +10,10 @@ import java.util.List;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
-    @NonNull
-    @Override
+    @NonNull @Override
     @EntityGraph(attributePaths = "orders")
     List<Customer> findAll();
 
-    @NonNull
-    @EntityGraph(attributePaths = "orders")
+    @NonNull @EntityGraph(attributePaths = "orders")
     List<Customer> findByNameContainingIgnoreCase(String searchText);
 }

@@ -12,8 +12,7 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    @NonNull
-    @Override
+    @NonNull @Override
     @EntityGraph(attributePaths = "orders")
     List<Product> findAll();
 }
